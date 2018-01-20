@@ -16,6 +16,8 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
 import org.opencv.videoio.VideoCapture;
 
+import edu.wpi.first.wpilibj.networktables.*;
+
 /* Make sure GRIP is not open when running
  * 
  * 
@@ -36,7 +38,7 @@ public class Main {
 		JFrame frame = new JFrame("Vision Window");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(800, 600);
-
+		
 		// Create a window listener that provides callback for opened and closed
 		WindowListener windowListen = new WindowListener() {
 			@Override
@@ -80,7 +82,7 @@ public class Main {
 		GripPipeline pipeline = new GripPipeline();
 
 		// Sets the camera, change cameraIndex to 0 for pi
-		int cameraIndex = 1;
+		int cameraIndex = 0;
 		VideoCapture camera = new VideoCapture(cameraIndex);
 
 		// If camera isn't open
@@ -92,6 +94,14 @@ public class Main {
 		// Stores image from camera
 		Mat image = new Mat();
 		camera.read(image);
+		
+		// Initialize Network Tables
+		NetworkTable.setClientMode();
+		NetworkTable.setTeam(2846);
+		NetworkTable.setIPAddress("10.28.46.2");
+		
+		// 
+		NetworkTable table = NetworkTable.getTable("SmartDashboard");
 		
 		// Main loop while window is open
 		while (Main.windowOpen) {
@@ -130,6 +140,10 @@ public class Main {
 			// Sets angleX and angleY
 			double angleX = findAngle(center.x, image.cols(), fovx);
 			double angleY = findAngle(center.y, image.rows(), fovy);
+			
+			// Put data in Network Tables
+			table.putNumber("AngleX", angleX);
+			table.putNumber("AngleY", angleY);
 
 		}
 		// Turns off camera
