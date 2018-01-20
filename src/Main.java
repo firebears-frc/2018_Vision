@@ -27,8 +27,8 @@ public class Main {
 	public static boolean windowOpen;
 
 	// Camera FOV, change if switching cameras
-	private static final int fovx = 60;
-	private static final int fovy = 50;
+	private static final int fovx = 40;
+	private static final int fovy = 30;
 
 	public static void main(String[] args) {
 		// Loads OpenCV
@@ -38,7 +38,7 @@ public class Main {
 		JFrame frame = new JFrame("Vision Window");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(800, 600);
-		
+
 		// Create a window listener that provides callback for opened and closed
 		WindowListener windowListen = new WindowListener() {
 			@Override
@@ -94,35 +94,35 @@ public class Main {
 		// Stores image from camera
 		Mat image = new Mat();
 		camera.read(image);
-		
+
 		// Initialize Network Tables
 		NetworkTable.setClientMode();
 		NetworkTable.setTeam(2846);
 		NetworkTable.setIPAddress("10.28.46.2");
-		
-		// 
+
+		//
 		NetworkTable table = NetworkTable.getTable("Vision");
-		
+
 		// Main loop while window is open
 		while (Main.windowOpen) {
-			
+
 			// Updates video feed with new image
 			cameraVision.setIcon(new ImageIcon(matToBufferedImage(image)));
-			
+
 			// Gives error if can't read image
 			if (!camera.read(image)) {
 				System.out.println("Can't read image");
 				break;
 			}
-			
+
 			// Processes image
 			pipeline.process(image);
-			
+
 			// If no hulls, restart loop
 			if (pipeline.convexHullsOutput().size() == 0) {
 				continue;
 			}
-			
+
 			// Finds the biggest hull
 			MatOfPoint largestHull = pipeline.convexHullsOutput().get(0);
 			for (int i = 0; i < pipeline.convexHullsOutput().size(); ++i) {
@@ -130,17 +130,22 @@ public class Main {
 					largestHull = pipeline.convexHullsOutput().get(i);
 				}
 			}
-			
+
 			// Finds center of largestHull
 			Point center = centerOfConvexHull(largestHull);
 
 			// Draws circle on center
 			Imgproc.circle(image, center, 10, new Scalar(255, 0, 0), 10);
-			
+
 			// Sets angleX and angleY
 			double angleX = findAngle(center.x, image.cols(), fovx);
 			double angleY = findAngle(center.y, image.rows(), fovy);
-			
+
+			// Finds distance, 125 = half of fov + 90 + offset
+			double distanceToCube = findDistance(42.5, (180 - (angleY + 125)));
+			System.out.println("angleY:" + (180 - (angleY + 128)));
+			System.out.println(distanceToCube);
+
 			// Put data in Network Tables
 			table.putNumber("AngleX", angleX);
 			table.putNumber("AngleY", angleY);
@@ -150,7 +155,7 @@ public class Main {
 		System.out.println("Program done");
 		camera.release();
 	}
-	
+
 	// Convert OpenCV image to java image
 	public static BufferedImage matToBufferedImage(Mat src) {
 		BufferedImage image = new BufferedImage(src.cols(), src.rows(), BufferedImage.TYPE_3BYTE_BGR);
@@ -168,7 +173,7 @@ public class Main {
 		return center;
 	}
 
-	//  Find angle from pixel data
+	// Find angle from pixel data
 	public static double findAngle(double pixel, int resolution, int fov) {
 		double center = pixel - (resolution / 2);
 		double fovtoradians = (Math.PI / 180) * fov;
@@ -176,5 +181,11 @@ public class Main {
 		double radians = Math.asin(ratio);
 		double out = (180 / Math.PI) * radians;
 		return out;
+	}
+
+	// Find angle from height and angle
+	public static double findDistance(double height, double angle) {
+		double distance = Math.tan((Math.PI / 180) * angle) * height;
+		return distance;
 	}
 }
