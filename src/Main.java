@@ -101,7 +101,7 @@ public class Main {
 		NetworkTable.setIPAddress("10.28.46.2");
 		
 		// 
-		NetworkTable table = NetworkTable.getTable("SmartDashboard");
+		NetworkTable table = NetworkTable.getTable("Vision");
 		
 		// Main loop while window is open
 		while (Main.windowOpen) {
