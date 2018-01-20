@@ -41,15 +41,15 @@ public class GripPipeline {
 	public void process(Mat source0) {
 		// Step RGB_Threshold0:
 		Mat rgbThresholdInput = source0;
-		double[] rgbThresholdRed = {80.26079136690647, 255.0};
-		double[] rgbThresholdGreen = {82.55395683453237, 255.0};
-		double[] rgbThresholdBlue = {0.0, 107.04778156996588};
+		double[] rgbThresholdRed = {110.07194244604318, 211.48464163822527};
+		double[] rgbThresholdGreen = {103.19244604316546, 174.4965870307167};
+		double[] rgbThresholdBlue = {0.0, 111.39931740614334};
 		rgbThreshold(rgbThresholdInput, rgbThresholdRed, rgbThresholdGreen, rgbThresholdBlue, rgbThresholdOutput);
 
 		// Step HSV_Threshold0:
 		Mat hsvThresholdInput = source0;
-		double[] hsvThresholdHue = {17.805755395683452, 43.310580204778155};
-		double[] hsvThresholdSaturation = {139.88309352517985, 255.0};
+		double[] hsvThresholdHue = {17.805755395683452, 44.846416382252556};
+		double[] hsvThresholdSaturation = {77.96762589928056, 255.0};
 		double[] hsvThresholdValue = {0.0, 255.0};
 		hsvThreshold(hsvThresholdInput, hsvThresholdHue, hsvThresholdSaturation, hsvThresholdValue, hsvThresholdOutput);
 
